@@ -1,3 +1,4 @@
+![badge](https://img.shields.io/badge/under-development-red)
 This is based on the [assistant-ui](https://github.com/Yonom/assistant-ui) starter project.
 
 ## Getting Started
