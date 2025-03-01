@@ -7,7 +7,10 @@ export const maxDuration = 30;
 const modelProviders = {
   openai,
   anthropic,
-  // Add other model providers here if needed
+  // For Mistral and Cohere, we use OpenAI's compatible API for now
+  // You would need to add the actual SDK imports for these providers
+  mistral: openai,
+  cohere: openai,
 };
 
 export async function POST(req: Request) {

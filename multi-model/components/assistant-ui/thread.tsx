@@ -16,8 +16,9 @@ import {
   PencilIcon,
   RefreshCwIcon,
   SendHorizontalIcon,
+  ServerIcon
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, modelProviders, getDefaultModelForProvider } from "@/lib/utils";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -124,6 +125,17 @@ const Composer: FC = () => {
     modelOwner: configRef?.current?.modelOwner || "openai" 
   });
 
+  // Handle provider change - update model to provider's default
+  const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newProvider = e.target.value;
+    const defaultModel = getDefaultModelForProvider(newProvider);
+    
+    setModelConfig({
+      modelOwner: newProvider,
+      modelName: defaultModel
+    });
+  };
+
   // Update the shared config when local state changes
   useEffect(() => {
     if (configRef) {
@@ -135,13 +147,19 @@ const Composer: FC = () => {
   return (
     <>
       <div className="flex w-full justify-end mb-2 gap-2">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground mr-2">
+          <ServerIcon size={12} />
+          <span>Model:</span>
+        </div>
+        
         <select 
           className="text-xs rounded border px-2 py-1"
           value={modelConfig.modelOwner}
-          onChange={(e) => setModelConfig(prev => ({ ...prev, modelOwner: e.target.value }))}
+          onChange={handleProviderChange}
         >
-          <option value="openai">OpenAI</option>
-          <option value="anthropic">Anthropic</option>
+          {Object.entries(modelProviders).map(([key, provider]) => (
+            <option key={key} value={key}>{provider.name}</option>
+          ))}
         </select>
         
         <select 
@@ -149,19 +167,9 @@ const Composer: FC = () => {
           value={modelConfig.modelName}
           onChange={(e) => setModelConfig(prev => ({ ...prev, modelName: e.target.value }))}
         >
-          {modelConfig.modelOwner === "openai" ? (
-            <>
-              <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-              <option value="gpt-4">GPT-4</option>
-              <option value="gpt-4-turbo">GPT-4 Turbo</option>
-            </>
-          ) : (
-            <>
-              <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
-              <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
-              <option value="claude-3-opus-20240229">Claude 3 Opus</option>
-            </>
-          )}
+          {modelProviders[modelConfig.modelOwner as keyof typeof modelProviders]?.models.map(model => (
+            <option key={model.id} value={model.id}>{model.name}</option>
+          ))}
         </select>
       </div>
       
