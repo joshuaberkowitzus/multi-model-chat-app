@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import React, { type FC } from "react";
 import {
   ThreadListItemPrimitive,
   ThreadListPrimitive,
@@ -44,9 +44,51 @@ const ThreadListItem: FC = () => {
 };
 
 const ThreadListItemTitle: FC = () => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [customTitle, setCustomTitle] = React.useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      setIsEditing(false);
+    } else if (e.key === "Escape") {
+      setCustomTitle("");
+      setIsEditing(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   return (
-    <p className="text-sm">
-      <ThreadListItemPrimitive.Title fallback="New Chat" />
+    <p className="text-sm" onDoubleClick={handleDoubleClick}>
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={customTitle}
+          onChange={(e) => setCustomTitle(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          className="w-full bg-transparent outline-none border-b border-primary text-sm"
+          placeholder="Enter custom title"
+        />
+      ) : (
+        <ThreadListItemPrimitive.Title fallback="New Chat">
+          {customTitle || undefined}
+        </ThreadListItemPrimitive.Title>
+      )}
     </p>
   );
 };
