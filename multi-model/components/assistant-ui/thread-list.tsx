@@ -84,10 +84,10 @@ const ThreadListItemTitle: FC = () => {
           className="w-full bg-transparent outline-none border-b border-primary text-sm"
           placeholder="Enter custom title"
         />
+      ) : customTitle ? (
+        <span>{customTitle}</span>
       ) : (
-        <ThreadListItemPrimitive.Title fallback="New Chat">
-          {customTitle || undefined}
-        </ThreadListItemPrimitive.Title>
+        <ThreadListItemPrimitive.Title fallback="New Chat" />
       )}
     </p>
   );
