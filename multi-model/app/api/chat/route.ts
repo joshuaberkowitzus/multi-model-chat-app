@@ -1,16 +1,13 @@
 import { openai } from "@ai-sdk/openai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { jsonSchema, streamText } from "ai";
+import {useUsageStore} from "@/lib/utils";
 
-export const maxDuration = 30;
+export const maxDuration = 90;
 
 const modelProviders = {
   openai,
   anthropic,
-  // For Mistral and Cohere, we use OpenAI's compatible API for now
-  // You would need to add the actual SDK imports for these providers
-  mistral: openai,
-  cohere: openai,
 };
 
 export async function POST(req: Request) {
@@ -49,5 +46,10 @@ export async function POST(req: Request) {
     ),
   });
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse({
+    sendUsage: true,
+    sendReasoning: true,
+    sendSources: true
+  });
+
 }

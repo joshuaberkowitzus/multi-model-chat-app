@@ -1,10 +1,60 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { create } from 'zustand'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+/////////////////////////////USAGE DATA STORE
+export type UsageData = {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+};
+
+interface UsageState {
+    usage: {
+      promptTokens: number
+      completionTokens: number
+      totalTokens: number
+    }
+    usagePromise: Promise<any> | null
+    isPromiseReady: boolean
+    setUsagePromise: (promise: Promise<any>) => void  
+    setUsage: (usage: UsageData) => void
+    reset: () => void
+  }
+  
+  import { combine } from 'zustand/middleware'
+
+  export const useUsageStore = create(
+    combine(
+      {
+        usage: {
+          promptTokens: 10,
+          completionTokens: 0,
+          totalTokens: 0
+        },
+        isLoading: false,
+      },
+      (set) => ({
+        setUsage: (usage: UsageData) => {
+          console.log("Setting usage in store:", usage);
+          set({
+            usage: {
+              promptTokens: Number(usage.promptTokens) || 0,
+              completionTokens: Number(usage.completionTokens) || 0,
+              totalTokens: Number(usage.totalTokens) || 0
+            },
+            isLoading: false
+          });
+        }
+      })
+    )
+  )
+
+//////////////////////////////////////////////MODEL CONFIGURATION
 // Model configuration
 export type ModelConfig = {
     modelName: string;

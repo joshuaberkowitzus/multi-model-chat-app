@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   ActionBarPrimitive,
   BranchPickerPrimitive,
@@ -18,12 +18,14 @@ import {
   SendHorizontalIcon,
   ServerIcon
 } from "lucide-react";
-import { cn, modelProviders, getDefaultModelForProvider } from "@/lib/utils";
+import { cn, modelProviders, getDefaultModelForProvider, useUsageStore, type UsageData } from "@/lib/utils";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { UsageInfo } from "@/components/assistant-ui/usage-info";
+import { get } from "http";
 
 export const Thread: FC = () => {
   return (
@@ -92,22 +94,22 @@ const ThreadWelcomeSuggestions: FC = () => {
     <div className="mt-3 flex w-full items-stretch justify-center gap-4">
       <ThreadPrimitive.Suggestion
         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="What is the weather in Tokyo?"
+        prompt="Who are you?"
         method="replace"
         autoSend
       >
         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-          What is the weather in Tokyo?
+          Who are you?
         </span>
       </ThreadPrimitive.Suggestion>
       <ThreadPrimitive.Suggestion
         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="What is assistant-ui?"
+        prompt="What year was the American Revolution?"
         method="replace"
         autoSend
       >
         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-          What is assistant-ui?
+          What year was the American Revolution?
         </span>
       </ThreadPrimitive.Suggestion>
     </div>
@@ -273,8 +275,14 @@ const EditComposer: FC = () => {
 };
 
 const AssistantMessage: FC = () => {
+   
+  let usage = useUsageStore((state) => state.usage);
+  console.log("Usage data:", usage);
+
+
+
   return (
-    <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] relative w-full max-w-[var(--thread-max-width)] py-4">
+    <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr_auto] relative w-full max-w-[var(--thread-max-width)] py-4">
       <Avatar className="col-start-1 row-span-full row-start-1 mr-4">
         <AvatarFallback>A</AvatarFallback>
       </Avatar>
@@ -282,10 +290,16 @@ const AssistantMessage: FC = () => {
       <div className="text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words leading-7 col-span-2 col-start-2 row-start-1 my-1.5">
         <MessagePrimitive.Content components={{ Text: MarkdownText }} />
       </div>
-
+      
       <AssistantActionBar />
 
       <BranchPicker className="col-start-2 row-start-2 -ml-2 mr-2" />
+      
+      {usage && (
+        <div className="col-span-2 col-start-2 row-start-3">
+          <UsageInfo usage={usage} />
+        </div>
+      )}
     </MessagePrimitive.Root>
   );
 };
