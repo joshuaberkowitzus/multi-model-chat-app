@@ -14,6 +14,8 @@ export default function Home() {
     modelOwner: "openai"
   });
 
+  
+/////////////////////////////////////USAGE DATA STORE
   const runtime = useChatRuntime({ 
     api: "/api/chat",
     onResponse: async (response) => {
@@ -27,6 +29,8 @@ export default function Home() {
 
       const reader = responseCopy.body?.getReader();
       if (!reader) return;
+      let messageID = null;
+
 
       try {
         while (true) {
@@ -35,25 +39,38 @@ export default function Home() {
 
           const text = new TextDecoder().decode(value);
           const lines = text.split('\n').filter(line => line.trim());
-          
+
           for (const line of lines) {
-            // Look specifically for lines starting with 'e:' or 'd:' containing usage data
-            if (line.startsWith('e:') || line.startsWith('d:')) {
+            // Handle message ID lines (f: prefix)
+            if (line.startsWith('f:')) {
               try {
-                const jsonStr = line.substring(2); // Remove prefix
-                const data = JSON.parse(jsonStr);
-                
+                const parsed = JSON.parse(line.substring(2));
+                messageID = parsed.messageId;
+                console.log("Found message ID:", messageID);
+                // Add to message order
+                useUsageStore.getState().addMessageToOrder(messageID);
+              } catch (e) {
+                console.error("Error parsing message ID:", e);
+              }
+              continue;
+            }
+            
+            // Handle usage data lines (e: or d: prefix)
+            if ((line.startsWith('e:') || line.startsWith('d:')) && messageID) {
+              try {
+                const data = JSON.parse(line.substring(2));
                 if (data.usage) {
-                  console.log("Found usage data:", data.usage);
-                  const totalUsage = {
+                  // Add to usage history with current message ID
+                  useUsageStore.getState().addMessageUsage(messageID, {
                     promptTokens: data.usage.promptTokens || 0,
                     completionTokens: data.usage.completionTokens || 0,
                     totalTokens: (data.usage.promptTokens || 0) + (data.usage.completionTokens || 0)
-                  };
-                  useUsageStore.getState().setUsage(totalUsage);
+                  });
+                  console.log(`Added usage data for message ${messageID}`);
+                  console.log("Current usage data:", useUsageStore.getState().usageHistory);
                 }
               } catch (e) {
-                console.error("Error parsing usage data:", e);
+                console.error("Error processing usage data:", e);
               }
             }
           }
@@ -71,26 +88,6 @@ export default function Home() {
     },
   });
 
-  /*
-  // Setup the chat runtime
-  const runtime = useChatRuntime({ 
-    api: "/api/chat",
-    // Make runtime accessible via window for debugging
-    onResponse: (response) => {
-      console.log("API response received:", response.status);
-      if (!response.ok) {
-        console.error("API error:", response.statusText);
-      }
-    },
-    // Customize the request to include model settings
-    body: {
-      get modelConfig() {
-        // This will be evaluated when the request is made
-        return modelConfigRef.current;
-      }
-    },
-  });
-  */
   // Make runtime and config accessible between components
   useEffect(() => {
     if (typeof window !== 'undefined') {

@@ -6,15 +6,65 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+
+
 /////////////////////////////USAGE DATA STORE
 export type UsageData = {
+    //message_id?: string;
     promptTokens?: number;
     completionTokens?: number;
     totalTokens?: number;
 };
 
 interface UsageState {
+  usageHistory: {
+    messageId: string;
+    usage: UsageData;
+  }[];
+  messageOrder: string[];  // Track order of messages as they appear
+  addMessageUsage: (messageId: string, usage: UsageData) => void;
+  getUsageByMessageId: (messageId: string) => UsageData | undefined;
+  addMessageToOrder: (messageId: string) => void;
+  getMessagePosition: (messageId: string) => number;
+}
+
+export const useUsageStore = create<UsageState>((set, get) => ({
+  usageHistory: [],
+  messageOrder: [], // Maintains order of messages as they appear
+
+  addMessageToOrder: (messageId: string) => {
+    set((state) => ({
+      messageOrder: [...state.messageOrder, messageId]
+    }));
+  },
+
+  getMessagePosition: (messageId: string) => {
+    return get().messageOrder.indexOf(messageId);
+  },
+
+  addMessageUsage: (messageId: string, usage: UsageData) => {
+    console.log(`Adding usage for message ${messageId}:`, usage);
+    set((state) => {
+      // Only add if not already present
+      if (!state.usageHistory.find(m => m.messageId === messageId)) {
+        return {
+          usageHistory: [...state.usageHistory, { messageId, usage }]
+        };
+      }
+      return state;
+    });
+  },
+
+  getUsageByMessageId: (messageId: string) => {
+    const entry = get().usageHistory.find(m => m.messageId === messageId);
+    return entry?.usage;
+  }
+}));
+/*
+//////////////////////////////////////////////USAGE DATA STORE
+interface UsageState {
     usage: {
+      message_id: string
       promptTokens: number
       completionTokens: number
       totalTokens: number
@@ -32,6 +82,7 @@ interface UsageState {
     combine(
       {
         usage: {
+          message_id: "",
           promptTokens: 10,
           completionTokens: 0,
           totalTokens: 0
@@ -43,6 +94,7 @@ interface UsageState {
           console.log("Setting usage in store:", usage);
           set({
             usage: {
+              message_id: usage.message_id || "",
               promptTokens: Number(usage.promptTokens) || 0,
               completionTokens: Number(usage.completionTokens) || 0,
               totalTokens: Number(usage.totalTokens) || 0
@@ -53,7 +105,7 @@ interface UsageState {
       })
     )
   )
-
+*/
 //////////////////////////////////////////////MODEL CONFIGURATION
 // Model configuration
 export type ModelConfig = {

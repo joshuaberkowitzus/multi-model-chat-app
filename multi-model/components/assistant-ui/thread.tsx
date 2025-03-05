@@ -275,12 +275,23 @@ const EditComposer: FC = () => {
 };
 
 const AssistantMessage: FC = () => {
-   
+  
+  ////////////////USAGE DATA STORE 
+  // Each instance gets its position in the message order
+  const [myPosition] = useState(() => {
+    const currentPosition = useUsageStore.getState().messageOrder.length;
+    return currentPosition;
+  });
+
+  // Subscribe to usage data based on position
+  const usage = useUsageStore((state) => {
+    const messageId = state.messageOrder[myPosition];
+    return messageId ? state.getUsageByMessageId(messageId) : undefined;
+  });
+  /*
   let usage = useUsageStore((state) => state.usage);
   console.log("Usage data:", usage);
-
-
-
+*/
   return (
     <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr_auto] relative w-full max-w-[var(--thread-max-width)] py-4">
       <Avatar className="col-start-1 row-span-full row-start-1 mr-4">
