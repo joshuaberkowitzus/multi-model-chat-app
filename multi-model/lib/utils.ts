@@ -9,18 +9,24 @@ export function cn(...inputs: ClassValue[]) {
 
 
 /////////////////////////////USAGE DATA STORE
+import { UsageData } from "@/components/assistant-ui/usage-info";
+/*
 export type UsageData = {
     //message_id?: string;
     promptTokens?: number;
     completionTokens?: number;
     totalTokens?: number;
+    modelName?: string;
+    modelOwner?: string;
 };
+*/
 
 interface UsageState {
   usageHistory: {
     messageId: string;
     usage: UsageData;
   }[];
+
   messageOrder: string[];  // Track order of messages as they appear
   addMessageUsage: (messageId: string, usage: UsageData) => void;
   getUsageByMessageId: (messageId: string) => UsageData | undefined;
@@ -60,52 +66,6 @@ export const useUsageStore = create<UsageState>((set, get) => ({
     return entry?.usage;
   }
 }));
-/*
-//////////////////////////////////////////////USAGE DATA STORE
-interface UsageState {
-    usage: {
-      message_id: string
-      promptTokens: number
-      completionTokens: number
-      totalTokens: number
-    }
-    usagePromise: Promise<any> | null
-    isPromiseReady: boolean
-    setUsagePromise: (promise: Promise<any>) => void  
-    setUsage: (usage: UsageData) => void
-    reset: () => void
-  }
-  
-  import { combine } from 'zustand/middleware'
-
-  export const useUsageStore = create(
-    combine(
-      {
-        usage: {
-          message_id: "",
-          promptTokens: 10,
-          completionTokens: 0,
-          totalTokens: 0
-        },
-        isLoading: false,
-      },
-      (set) => ({
-        setUsage: (usage: UsageData) => {
-          console.log("Setting usage in store:", usage);
-          set({
-            usage: {
-              message_id: usage.message_id || "",
-              promptTokens: Number(usage.promptTokens) || 0,
-              completionTokens: Number(usage.completionTokens) || 0,
-              totalTokens: Number(usage.totalTokens) || 0
-            },
-            isLoading: false
-          });
-        }
-      })
-    )
-  )
-*/
 //////////////////////////////////////////////MODEL CONFIGURATION
 // Model configuration
 export type ModelConfig = {

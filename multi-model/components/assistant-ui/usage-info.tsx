@@ -4,6 +4,8 @@ export interface UsageData {
   promptTokens?: number;
   completionTokens?: number;
   totalTokens?: number;
+  modelName?: string;
+  modelOwner?: string;
 }
 
 interface UsageInfoProps {
@@ -22,7 +24,13 @@ export const UsageInfo: FC<UsageInfoProps> = ({ usage }) => {
         <span className="mr-2">Completion: {usage.completionTokens}</span>
       )}
       {usage.totalTokens !== undefined && (
-        <span>Total: {usage.totalTokens}</span>
+        <span className="mr-2">Total: {usage.totalTokens}</span>
+      )}
+      {usage.modelName !== undefined && (
+        <span className="mr-2">Model: {usage.modelName}</span>
+      )}
+      {usage.modelOwner !== undefined && (
+        <span className="mr-2">Owner: {usage.modelOwner}</span>
       )}
     </div>
   );

@@ -64,7 +64,9 @@ export default function Home() {
                   useUsageStore.getState().addMessageUsage(messageID, {
                     promptTokens: data.usage.promptTokens || 0,
                     completionTokens: data.usage.completionTokens || 0,
-                    totalTokens: (data.usage.promptTokens || 0) + (data.usage.completionTokens || 0)
+                    totalTokens: (data.usage.promptTokens || 0) + (data.usage.completionTokens || 0),
+                    modelName: modelConfigRef.current.modelName,    // Add model info from config
+                    modelOwner: modelConfigRef.current.modelOwner
                   });
                   console.log(`Added usage data for message ${messageID}`);
                   console.log("Current usage data:", useUsageStore.getState().usageHistory);

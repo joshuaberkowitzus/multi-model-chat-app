@@ -289,7 +289,6 @@ const AssistantMessage: FC = () => {
     return messageId ? state.getUsageByMessageId(messageId) : undefined;
   });
   /*
-  let usage = useUsageStore((state) => state.usage);
   console.log("Usage data:", usage);
 */
   return (
